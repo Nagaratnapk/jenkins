@@ -8,7 +8,19 @@ pipeline {
         stage('DB') {
             steps {
               dir('DB') {
-                git branch: 'main', url: 'https://github.com/Nagaratnapk/terraform-vpc.git'
+                git branch: 'main', url: 'https://github.com/Nagaratnapk/terraform-databases.git'
+                sh "terrafile -f env-${ENV}/Terrafile"  
+                sh "terraform init -backend-config=env-${ENV}/${ENV}-backend.tfvars"
+                sh "terraform plan -var-file=env-${ENV}/${ENV}.tfvars"
+                sh "terraform destroy -var-file=env-${ENV}/${ENV}.tfvars -auto-approve"
+               }                    
+            }
+        }
+  
+        stage('ALB') {
+            steps {
+              dir('DB') {
+                git branch: 'main', url: 'https://github.com/Nagaratnapk/terraform-loadbalancers.git'
                 sh "terrafile -f env-${ENV}/Terrafile"  
                 sh "terraform init -backend-config=env-${ENV}/${ENV}-backend.tfvars"
                 sh "terraform plan -var-file=env-${ENV}/${ENV}.tfvars"
